@@ -58,6 +58,23 @@ def Load_OCEAN_Labels(Clean_Trans,Annotation):
     
     return X_Features, OCEAN_Labels
 
+def Grid_Search():
+    # Tuning of parameters for regression by cross-validation
+    K = 5               # Number of cross valiations
+
+    # Parameters for tuning
+    parameters = [{'kernel': ['rbf'], 'gamma': [1e-4, 1e-3, 0.01, 0.1, 0.2, 0.5, 0.6, 0.9],'C': [1, 10, 100, 1000, 10000]}]
+    print("Tuning hyper-parameters")
+    svr = GridSearchCV(SVR(epsilon = 0.01), parameters, cv = K)
+    svr.fit(X, y)
+
+    # Checking the score for all parameters
+    print("Grid scores on training set:")
+    means = svr.cv_results_['mean_test_score']
+    stds = svr.cv_results_['std_test_score']
+    for mean, std, params in zip(means, stds, svr.cv_results_['params']):
+        print("%0.3f (+/-%0.03f) for %r"% (mean, std * 2, params))
+    
 X_TR, OCEAN_TR = Load_OCEAN_Labels(Train,A_Train)
 X_VL, OCEAN_VL = Load_OCEAN_Labels(Val,A_Val)
 X_TS, OCEAN_TS = Load_OCEAN_Labels(Test,A_Test)
