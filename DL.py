@@ -74,17 +74,21 @@ def KerasDeeepLearning():
     MODEL = Sequential()
 #    MODEL.add(layers.Dense(10, input_dim=input_dim, activation='relu'))
 #    MODEL.add(layers.Dense(1, activation='sigmoid'))
-    
-    MODEL.add(layers.Dense(30, input_dim=input_dim, activation='softmax'))
+
+    MODEL.add(layers.Dense(40, input_dim=input_dim, activation='relu'))
     MODEL.add(layers.Dense(15, activation='relu'))
-    MODEL.add(layers.Dense(7, activation='relu'))
     MODEL.add(layers.Dense(1, activation='sigmoid'))
+
+#    MODEL.add(layers.Dense(30, input_dim=input_dim, activation='relu'))
+#    MODEL.add(layers.Dense(15, activation='relu'))
+#    MODEL.add(layers.Dense(7, activation='relu'))
+#    MODEL.add(layers.Dense(1, activation='sigmoid'))
 
 
     MODEL.compile(loss='mse', optimizer='adam', metrics=['mae'])
     MODEL.summary()
 
-    History = MODEL.fit(X_train, Y_train, epochs=20, verbose=False, 
+    History = MODEL.fit(X_train, Y_train, epochs=25, verbose=False, 
                         validation_data=(X_val, Y_val), batch_size=30)
     
     loss, MEA = MODEL.evaluate(X_train, Y_train, verbose=False)
