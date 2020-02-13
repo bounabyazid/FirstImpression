@@ -19,27 +19,32 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import CountVectorizer
 from PreprocesingTranscriptions import Preprocessing_Dataset
 
-def LoadLabels(Annotation,keys):
-#    Y_A, Y_C, Y_E, Y_I, Y_N, Y_O = [],[],[],[],[],[]
-    Y_I = []
+def LoadLabels(Prediction, Annotation, keys):
+    Y_A, Y_C, Y_E, Y_I, Y_N, Y_O = [],[],[],[],[],[]
+    
     file = open(Annotation, "rb")
     annotation = pickle.load(file, encoding='latin1')
+    
     for key in keys:
-#        Y_A.append(annotation['agreeableness'][key])
-#        Y_C.append(annotation['conscientiousness'][key])
-#        Y_E.append(annotation['extraversion'][key])
-#        Y_N.append(annotation['neuroticism'][key])
-#        Y_O.append(annotation['openness'][key])
-        Y_I.append(annotation['interview'][key])
-#    return Y_A, Y_C, Y_E, Y_I, Y_N, Y_O
-    return Y_I
+        if Prediction == 'Inetrview':
+           Y_I.append(annotation['interview'][key])
+        elif Prediction == 'OCEAN':   
+             Y_A.append(annotation['agreeableness'][key])
+             Y_C.append(annotation['conscientiousness'][key])
+             Y_E.append(annotation['extraversion'][key])
+             Y_N.append(annotation['neuroticism'][key])
+             Y_O.append(annotation['openness'][key])
+    if Prediction == 'Inetrview':
+       return Y_I
+    elif Prediction == 'OCEAN':     
+         return Y_A, Y_C, Y_E, Y_N, Y_O
 
 def LoadDataSet():
     trans_train,tran_val,tran_test, train_keys, val_keys, test_keys = Preprocessing_Dataset()
     
-    Y_train = LoadLabels('info/annotation_training.pkl',train_keys)
-    Y_val = LoadLabels('info/annotation_validation.pkl',val_keys)
-    Y_test = LoadLabels('info/annotation_test.pkl',test_keys)
+    Y_train = LoadLabels('Inetrview', 'info/annotation_training.pkl', train_keys)
+    Y_val = LoadLabels('Inetrview', 'info/annotation_validation.pkl', val_keys)
+    Y_test = LoadLabels('Inetrview', 'info/annotation_test.pkl', test_keys)
     
     vectorizer = CountVectorizer()
     vectorizer.fit(trans_train)
@@ -53,8 +58,7 @@ def LoadDataSet():
 def BaseLineModel():
     X_train, X_val, X_test, Y_train, Y_val, Y_test = LoadDataSet()
     #parameters = {'kernel': ('linear', 'rbf','poly'), 'C':[1.5, 10],'gamma': [1e-7, 1e-2],'epsilon':[0.1,0.2,0.5,0.3]}
-    parameters = {'C':[1.5, 1000],'gamma': [1e-9, 1e-1]}
-    #parameters = {'epsilon':[1e-9, 1e-1]}
+    #parameters = {'C':[1.5, 1000],'gamma': [1e-9, 1e-1]}
 
     MODEL = SVR(kernel= 'rbf', C= 1000, gamma= 0.1, epsilon= 0.019)
     MODEL.fit(X_train,Y_train)
@@ -80,8 +84,27 @@ def BaseLineModel():
     print('R2 VAL = ' + str(r2_vl))
     print('R2 TS = ' + str(r2_ts))
     
+    filename = 'Interview_model.sav'
+    pickle.dump(MODEL, open(filename, 'wb'))
+    
 #    svr = svm.SVR(kernel= 'rbf', epsilon= 0.04)
 #    clf = grid_search.GridSearchCV(svr, parameters)
 #    clf.fit(X_train,Y_train)
 #    print(clf.best_params_)
+    
+def LoadBaseLineModel(X_test, Y_test):
+    filename = 'Interview_model.sav'
+    MODEL = pickle.load(open(filename, 'rb'))
+    YP_test = MODEL.predict(X_test, Y_test)
+    
+    mae_ts = round(1 - mean_absolute_error(Y_test, YP_test),4)
+    mse_ts = round(1 - mean_squared_error(Y_test, YP_test),4)
+    r2_ts = round(r2_score(Y_test, YP_test),4)
+
+    print('MAE TS = ' + str(mae_ts))
+    print('........................')
+    print('MSE TS = ' + str(mse_ts))
+    print('........................')
+    print('R2 TS = ' + str(r2_ts))
+
 BaseLineModel()
