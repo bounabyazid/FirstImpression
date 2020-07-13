@@ -68,6 +68,9 @@ def BaseLineModel():
     #parameters = {'kernel': ('linear', 'rbf','poly'), 'C':[1.5, 10],'gamma': [1e-7, 1e-2],'epsilon':[0.1,0.2,0.5,0.3]}
     #parameters = {'C':[1.5, 1000],'gamma': [1e-9, 1e-1]}
 
+#    parameters = {'kernel': ('linear', 'rbf','poly'), 'C':[1.5, 1000],'gamma': [1e-9, 1e-1],'epsilon':[0.1,0.2,0.5,0.3]}
+#    clf = grid_search.GridSearchCV(svm.SVR(), parameters,cv=10, scoring='neg_mean_absolute_error', verbose=5, n_jobs=-1)
+
     MODEL = SVR(kernel= 'rbf', C= 1000, gamma= 0.1, epsilon= 0.019)
     #MODEL = LinearRegression()
     #MODEL = DecisionTreeRegressor(random_state=0)
